@@ -1,21 +1,23 @@
 from fastapi import APIRouter
 from app.database import database
-from app.models.models import menu_categories
-from app.schemas.schemas import MenuCategoryIn, MenuCategoryOut
+from app.models.models import tables
+from app.schemas.schemas import TableIn, TableOut
 from sqlalchemy.exc import IntegrityError, DataError
 from fastapi.responses import JSONResponse
+
+
 router = APIRouter()
-@router.post("/create", response_model=MenuCategoryOut)
-async def create_category(category: MenuCategoryIn):
-    query = menu_categories.insert().values(**category.dict())
-    try:
+@router.post("/create", response_model=TableOut)
+async def create_tables (table: TableIn):
+    query = tables.insert().values(**table.dict())
+    try :
         
-        category_id = await database.execute(query)
-        return {**category.dict(), "id": category_id}
+        table_id = await database.execute(query)
+        return {**table.dict(), "id": table_id}
     except IntegrityError as e:
         return JSONResponse(
             status_code=400,
-            content={"detail": "Integrity error: likely duplicate or invalid field", "error": str(e.orig)}
+            content={"detail": "Integrity error: likely duplicate or invalid field"}
         )
     except DataError as e:
         return JSONResponse(
@@ -27,15 +29,16 @@ async def create_category(category: MenuCategoryIn):
             status_code=500,
             content={"detail": "Internal server error", "error": str(e)}
         )
-        
-@router.get("/", response_model=list[MenuCategoryOut])
-async def get_all_categories():
-    query = menu_categories.select()
-    try:
-        records = await database.fetch_all(query)
-        return [dict(record) for record in records]
+@router.get("/", response_model=list[TableOut])
+async def get_all_tables():
+    query = tables.select()
+    try :
+        records=await database.fetch_all(query)
+        return ([dict(record) for record in records])
     except Exception as e:
         return JSONResponse(
             status_code=500,
             content={"detail": "Internal server error", "error": str(e)}
         )
+        
+   

@@ -1,17 +1,17 @@
 from fastapi import APIRouter
 from app.database import database
-from app.models.models import menu_categories
-from app.schemas.schemas import MenuCategoryIn, MenuCategoryOut
+from app.models.models import order_items
+from app.schemas.schemas import OrderItemIn, OrderItemOut
 from sqlalchemy.exc import IntegrityError, DataError
 from fastapi.responses import JSONResponse
+#
 router = APIRouter()
-@router.post("/create", response_model=MenuCategoryOut)
-async def create_category(category: MenuCategoryIn):
-    query = menu_categories.insert().values(**category.dict())
+@router.post("/create", response_model=OrderItemOut)
+async def create_orders(order_item: OrderItemIn):
+    query = order_items.insert().values(**order_item.dict())
     try:
-        
-        category_id = await database.execute(query)
-        return {**category.dict(), "id": category_id}
+        order_id = await database.execute(query)
+        return {**order_item.dict(), "id": order_id}
     except IntegrityError as e:
         return JSONResponse(
             status_code=400,
@@ -28,9 +28,9 @@ async def create_category(category: MenuCategoryIn):
             content={"detail": "Internal server error", "error": str(e)}
         )
         
-@router.get("/", response_model=list[MenuCategoryOut])
-async def get_all_categories():
-    query = menu_categories.select()
+@router.get("/", response_model=list[OrderItemOut])
+async def get_all_orders():
+    query = order_items.select()
     try:
         records = await database.fetch_all(query)
         return [dict(record) for record in records]

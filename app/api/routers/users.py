@@ -1,19 +1,19 @@
-from fastapi import APIRouter
-from app.database import database
-from app.models.models import menu_categories
-from app.schemas.schemas import MenuCategoryIn, MenuCategoryOut
-from sqlalchemy.exc import IntegrityError, DataError
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
+from app.database import database
+from app.models.models import users
+from app.schemas.schemas import UserIn, UserOut
+from sqlalchemy.exc import IntegrityError, DataError
 router = APIRouter()
-@router.post("/create", response_model=MenuCategoryOut)
-async def create_category(category: MenuCategoryIn):
-    query = menu_categories.insert().values(**category.dict())
-    try:
-        
-        category_id = await database.execute(query)
-        return {**category.dict(), "id": category_id}
+@router.post("/create", response_model=UserOut)
+async def create_user(user: UserIn):
+    query = users.insert().values(**user.dict())
+    
+    try :
+        user_id= await database.execute(query)
+        return {**user.dict(), "id": user_id}
     except IntegrityError as e:
-        return JSONResponse(
+         return JSONResponse(
             status_code=400,
             content={"detail": "Integrity error: likely duplicate or invalid field", "error": str(e.orig)}
         )
@@ -22,20 +22,25 @@ async def create_category(category: MenuCategoryIn):
             status_code=400,
             content={"detail": "Invalid data format or length", "error": str(e.orig)}
         )
+
+    
     except Exception as e:
         return JSONResponse(
             status_code=500,
             content={"detail": "Internal server error", "error": str(e)}
-        )
-        
-@router.get("/", response_model=list[MenuCategoryOut])
-async def get_all_categories():
-    query = menu_categories.select()
+            )
+
+@router.get("/", response_model=list[UserOut])
+async def get_all_users():
+    query = users.select()
     try:
         records = await database.fetch_all(query)
-        return [dict(record) for record in records]
+        return [
+            {**dict(record), "password_hash": None} for record in records  # Remove or mask password
+        ]
     except Exception as e:
         return JSONResponse(
             status_code=500,
             content={"detail": "Internal server error", "error": str(e)}
         )
+    
