@@ -41,4 +41,66 @@ async def get_all_tables():
             content={"detail": "Internal server error", "error": str(e)}
         )
         
-   
+@router.get("/{table_id}", response_model=TableOut)
+async def get_table_by_id(table_id:int):
+    query = tables.select().where(tables.c.id==table_id)
+    try:
+        record = await database.fetch_one(query)
+        if record is None:
+            return JSONResponse(
+                status_code=404,
+                content={"detail": "Table not found"}
+            )
+        return dict(record)
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal server error", "error": str(e)}
+        )
+@router.put("/{table_id}/update", response_model=TableOut)
+async def update_table(table_id: int, table: TableIn):
+    query = tables.update().where(tables.c.id == table_id).values(**table.dict())
+    try:
+        await database.execute(query)
+        return {**table.dict(), "id": table_id}
+    except IntegrityError as e:
+        return JSONResponse(
+            status_code=400,
+            content={"detail": "Integrity error: likely duplicate or invalid field", "error": str(e.orig)}
+        )
+    except DataError as e:
+        return JSONResponse(
+            status_code=400,
+            content={"detail": "Invalid data format or length", "error": str(e.orig)}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal server error", "error": str(e)}
+        )
+@router.delete("/{table_id}/delete")
+async def delete_table(table_id: int):
+    query = tables.delete().where(tables.c.id == table_id)
+    try:
+        await database.execute(query)
+        return JSONResponse(
+            status_code=204,
+            content={"detail": "Table deleted successfully"}
+        )
+    except IntegrityError as e:
+        return JSONResponse(
+            status_code=400,
+            content={"detail": "Integrity error: likely duplicate or invalid field", "error": str(e.orig)}
+        )
+    except DataError as e:
+        return JSONResponse(
+            status_code=400,
+            content={"detail": "Invalid data format or length", "error": str(e.orig)}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal server error", "error": str(e)}
+        )
+
+  
