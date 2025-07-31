@@ -57,7 +57,7 @@ async def get_category_by_id(category_id:int):
             status_code=500,
             content={"detail": "Internal server error", "error": str(e)}
         )
-@router.put("/{categoty_id}/update", response_model=MenuCategoryOut)
+@router.put("/{category_id}/update", response_model=MenuCategoryOut)
 async def update_category(category_id:int, category: MenuCategoryIn):
     query = menu_categories.update().where(menu_categories.c.id == category_id).values(**category.dict())
     try:
