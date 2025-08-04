@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from app.database import database
-from app.models.models import menu_categories
-from app.schemas.schemas import MenuCategoryIn, MenuCategoryOut
+from database import database
+from models.models import menu_categories
+from schemas.schemas import MenuCategoryIn, MenuCategoryOut
 from sqlalchemy.exc import IntegrityError, DataError
 from fastapi.responses import JSONResponse
 router = APIRouter()

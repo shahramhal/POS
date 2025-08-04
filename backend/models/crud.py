@@ -1,6 +1,6 @@
-from app.models.models import users 
-from app.database import database, metadata, engine
-from app.schemas.schemas import UserIn, UserOut
+from models.models import users 
+from database import database, metadata, engine
+from schemas.schemas import UserIn, UserOut
 
 async def create_user(user: UserIn):
     query = users.insert().values(name=user.name, email=user.email)

@@ -1,7 +1,7 @@
 from fastapi import APIRouter 
-from app.database import database
-from app.models.models import payments
-from app.schemas.schemas import PaymentIn , PaymentOut 
+from database import database
+from models.models import payments
+from schemas.schemas import PaymentIn , PaymentOut 
 from sqlalchemy.exc import IntegrityError, DataError
 from fastapi.responses import JSONResponse
 

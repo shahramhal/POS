@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from databases import Database
-from app.config import DATABASE_URL
-from app.models import models  
+from config import DATABASE_URL
+from models import models  
 
 database = Database(DATABASE_URL)
 

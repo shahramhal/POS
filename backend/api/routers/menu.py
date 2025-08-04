@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends , HTTPException
-from app.database import database 
-from app.models.models import  menu_items
-from app.schemas.schemas import MenuItemIn, MenuItemOut
+from database import database 
+from models.models import  menu_items
+from schemas.schemas import MenuItemIn, MenuItemOut
 from sqlalchemy.exc import IntegrityError, DataError
 from fastapi.responses import JSONResponse
 # from dependencies import require_role
@@ -58,7 +58,7 @@ async def get_all_menu_items():
 
 @router.get("/{item_id}", response_model=MenuItemOut)
 async def get_menu_item(item_id: int):
-    query=menu_items.selecy().where(menu_items.c.id == item_id)
+    query=menu_items.select().where(menu_items.c.id == item_id)
     try :
         records=await database.fetch_one(query)
         if records is None:

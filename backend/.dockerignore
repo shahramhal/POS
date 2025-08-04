@@ -1,0 +1,25 @@
+# .dockerignore
+
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.venv/
+env/
+.env
+
+# IDE / Editor specific
+.idea/
+.vscode/
+
+# Other
+.DS_Store
+coverage

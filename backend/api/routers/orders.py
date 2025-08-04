@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from app.database import database
-from app.models.models import orders
-from app.schemas.schemas import  OrderIn, OrderOut
+from database import database
+from models.models import orders
+from schemas.schemas import  OrderIn, OrderOut
 from sqlalchemy.exc import IntegrityError, DataError
 from fastapi.responses import JSONResponse  
 

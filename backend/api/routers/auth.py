@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials, OAuth2PasswordRequestForm
 from sqlalchemy.sql import select
-from app.database import database
-from app.models.models import users
-from app.utils.security import verify_password
-from app.utils.jwt import create_access_token, decode_access_token
+from database import database
+from models.models import users
+from utils.security import verify_password
+from utils.jwt import create_access_token, decode_access_token
 
 # 1. Define the router and the security scheme
 router = APIRouter()

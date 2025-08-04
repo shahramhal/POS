@@ -1,6 +1,6 @@
-from fastapi import FastAPI
-from app.database import database
-from app.api.routers import menu, categories, orders, tables,users,payments, order_items, auth
+from fastapi import FastAPI # Import FastAPI framework
+from database import database
+from api.routers import menu, categories, orders, tables,users,payments, order_items, auth
 
 app = FastAPI()
 
@@ -20,6 +20,7 @@ app.include_router(order_items.router, prefix="/order_items", tags=["Order Items
 app.include_router(users.router, prefix="/users",tags=["User"])
 app.include_router(payments.router, prefix="/payment", tags=["Payment"])
 app.include_router(auth.router, prefix="/auth", tags=["Auth"])
+
 
 app.get("/")
 async def root():

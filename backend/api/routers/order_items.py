@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from app.database import database
-from app.models.models import order_items
-from app.schemas.schemas import OrderItemIn, OrderItemOut
+from database import database
+from models.models import order_items
+from schemas.schemas import OrderItemIn, OrderItemOut
 from sqlalchemy.exc import IntegrityError, DataError
 from fastapi.responses import JSONResponse
 #
@@ -39,3 +39,4 @@ async def get_all_orders():
             status_code=500,
             content={"detail": "Internal server error", "error": str(e)}
         )
+

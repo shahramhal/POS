@@ -57,6 +57,7 @@ class OrderItemIn(BaseModel):
 class OrderItemOut(OrderItemIn):
     id: int
     
+    
 class TableIn(BaseModel):
     number: int
     is_occupied: bool = True

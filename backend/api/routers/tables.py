@@ -1,98 +1,68 @@
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
-from app.database import database
-from app.models.models import users
-from app.schemas.schemas import UserIn, UserOut
+from fastapi import APIRouter
+from database import database
+from models.models import tables
+from schemas.schemas import TableIn, TableOut
 from sqlalchemy.exc import IntegrityError, DataError
+from fastapi.responses import JSONResponse
+
+
 router = APIRouter()
-@router.post("/create", response_model=UserOut)
-async def create_user(user: UserIn):
-    query = users.insert().values(**user.dict())
-    
+@router.post("/create", response_model=TableOut)
+async def create_tables (table: TableIn):
+    query = tables.insert().values(**table.dict())
     try :
-        user_id= await database.execute(query)
-        return {**user.dict(), "id": user_id}
+        
+        table_id = await database.execute(query)
+        return {**table.dict(), "id": table_id}
     except IntegrityError as e:
-         return JSONResponse(
+        return JSONResponse(
             status_code=400,
-            content={"detail": "Integrity error: likely duplicate or invalid field", "error": str(e.orig)}
+            content={"detail": "Integrity error: likely duplicate or invalid field"}
         )
     except DataError as e:
         return JSONResponse(
             status_code=400,
             content={"detail": "Invalid data format or length", "error": str(e.orig)}
         )
-
-    
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"detail": "Internal server error", "error": str(e)}
-            )
-
-@router.get("/", response_model=list[UserOut])
-async def get_all_users():
-    query = users.select()
-    try:
-        records = await database.fetch_all(query)
-        return [
-            {**dict(record), "password_hash": None} for record in records  # Remove or mask password
-        ]
     except Exception as e:
         return JSONResponse(
             status_code=500,
             content={"detail": "Internal server error", "error": str(e)}
         )
-@router.get("/{user_id}", response_model=UserOut)
-async def get_user_by_id(user_id: int):
-    query = users.select().where(users.c.id == user_id)
+@router.get("/", response_model=list[TableOut])
+async def get_all_tables():
+    query = tables.select()
+    try :
+        records=await database.fetch_all(query)
+        return ([dict(record) for record in records])
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal server error", "error": str(e)}
+        )
+        
+@router.get("/{table_id}", response_model=TableOut)
+async def get_table_by_id(table_id:int):
+    query = tables.select().where(tables.c.id==table_id)
     try:
         record = await database.fetch_one(query)
-        if record:
-            return {**dict(record), "password_hash": None}  # Remove or mask password
-        else:
-            raise HTTPException(status_code=404, detail="User not found")
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"detail": "Internal server error", "error": str(e)}
-        )
-@router.put("/{user_id}/update", response_model=UserOut)
-async def update_user(user_id: int, user: UserIn):
-    query = users.update().where(users.c.id == user_id).values(**user.dict())
-    try:
-        result = await database.execute(query)
-        if result:
-            return {**user.dict(), "id": user_id}
-        else:
-            raise HTTPException(status_code=404, detail="User not found")
-    except IntegrityError as e:
-        return JSONResponse(
-            status_code=400,
-            content={"detail": "Integrity error: likely duplicate or invalid field", "error": str(e.orig)}
-        )
-    except DataError as e:
-        return JSONResponse(
-            status_code=400,
-            content={"detail": "Invalid data format or length", "error": str(e.orig)}
-        )
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content={"detail": "Internal server error", "error": str(e)}
-        )
-@router.delete("/{user_id}/delete")
-async def delete_user(user_id: int):
-    query = users.delete().where(users.c.id == user_id)
-    try:
-        result = await database.execute(query)
-        if result:
+        if record is None:
             return JSONResponse(
-                status_code=204,
-                content=None
+                status_code=404,
+                content={"detail": "Table not found"}
             )
-        else:
-            raise HTTPException(status_code=404, detail="User not found")
+        return dict(record)
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal server error", "error": str(e)}
+        )
+@router.put("/{table_id}/update", response_model=TableOut)
+async def update_table(table_id: int, table: TableIn):
+    query = tables.update().where(tables.c.id == table_id).values(**table.dict())
+    try:
+        await database.execute(query)
+        return {**table.dict(), "id": table_id}
     except IntegrityError as e:
         return JSONResponse(
             status_code=400,
@@ -108,3 +78,29 @@ async def delete_user(user_id: int):
             status_code=500,
             content={"detail": "Internal server error", "error": str(e)}
         )
+@router.delete("/{table_id}/delete")
+async def delete_table(table_id: int):
+    query = tables.delete().where(tables.c.id == table_id)
+    try:
+        await database.execute(query)
+        return JSONResponse(
+            status_code=204,
+            content={"detail": "Table deleted successfully"}
+        )
+    except IntegrityError as e:
+        return JSONResponse(
+            status_code=400,
+            content={"detail": "Integrity error: likely duplicate or invalid field", "error": str(e.orig)}
+        )
+    except DataError as e:
+        return JSONResponse(
+            status_code=400,
+            content={"detail": "Invalid data format or length", "error": str(e.orig)}
+        )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal server error", "error": str(e)}
+        )
+
+  
