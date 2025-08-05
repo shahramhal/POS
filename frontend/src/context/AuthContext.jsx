@@ -3,6 +3,7 @@ import { createContext, useContext, useState } from "react"
 import { employeeService } from "../services/employeeService"
 
 // Create the context
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext()
 
 // Custom hook to use the auth context

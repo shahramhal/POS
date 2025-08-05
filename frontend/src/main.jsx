@@ -1,17 +1,20 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import './index.css'
+// frontend/src/main.jsx
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  function App() {
-  return (
-    <div style={{ padding: '20px' }}>
-      <h1>Testing React Setup</h1>
-      <p>If you can see this, React is working!</p>
-    </div>
-  )
-}
-)
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.jsx';
+import { AuthProvider } from './context/AuthContext.jsx';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
+import './index.css';
 
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <ErrorBoundary>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </ErrorBoundary>
+  </React.StrictMode>
+);

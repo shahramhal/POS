@@ -1,4 +1,24 @@
+
 .App {
+  
   width: 100%;
-  min-height: 100vh;
+  theme: 'dark',
+}
+/* Add this to your App.css file */
+
+.avatar-placeholder {
+  width: 70px;
+  height: 70px;
+  background-color: #495057; /* A neutral gray color */
+  border-radius: 50%;
+}
+
+.card {
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  background-color: #343a40 !important; /* Slightly lighter on hover */
 }

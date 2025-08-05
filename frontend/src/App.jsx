@@ -1,18 +1,16 @@
-
-import "./App.css"
+import { useAuth } from './context/AuthContext.jsx';
+import EmployeeLogin from './components/EmployeeLogin.jsx';
+import Dashboard from './components/Dashboard.jsx';
+import './App.css';
 
 function App() {
+  const { user } = useAuth();
+
   return (
-    <div className="App" style={{ padding: 20 }}>
-      <h1 style={{ color: 'white' }}>POS System</h1>
-      <p style={{ color: 'white' }}>Login page will go here</p>
+    <div className="App min-vh-100" data-bs-theme="dark">
+      {user ? <Dashboard /> : <EmployeeLogin />}
     </div>
   );
 }
 
 export default App;
-
-// function App() {
-//   return <h1>Hello World</h1>;
-// }
-// export default App;
