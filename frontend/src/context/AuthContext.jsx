@@ -1,91 +1,77 @@
-// src/context/AuthContext.jsx
-import { createContext, useContext, useState } from "react"
-import { employeeService } from "../services/employeeService"
+/* eslint-disable react-refresh/only-export-components */
+// frontend/src/context/AuthContext.jsx
+import React, { createContext, useState, useEffect } from "react";
+import { loginUserWithPin, getMe } from "../services/api";
 
-// Create the context
-// eslint-disable-next-line react-refresh/only-export-components
-export const AuthContext = createContext()
+export const AuthContext = createContext();
 
-// Custom hook to use the auth context
-// eslint-disable-next-line react-refresh/only-export-components
-export const useAuth = () => {
-  const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider")
-  }
-  return context
-}
-
-// Provider component
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const login = async (employeeId, pin) => {
-    setLoading(true)
-    setError(null)
-    
-    try {
-      const employee = await employeeService.authenticateEmployee(employeeId, pin)
-      if (employee) {
-        setUser(employee)
-        return { success: true, employee }
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (token) {
+        try {
+          setLoading(true);
+          const currentUser = await getMe(token);
+          setUser(currentUser);
+        } catch (err) {
+          console.error("Failed to fetch user with stored token:", err);
+          setToken(null);
+          localStorage.removeItem("token");
+        } finally {
+          setLoading(false);
+        }
       } else {
-        setError("Invalid PIN")
-        return { success: false, error: "Invalid PIN" }
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, [token]);
+
+  const login = async (email, pin) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await loginUserWithPin(email, pin);
+      if (response.access_token) {
+        localStorage.setItem("token", response.access_token);
+        setToken(response.access_token);
+        // The useEffect will now trigger to fetch the user
+        return { success: true };
+      } else {
+         throw new Error("Login failed, no token received.");
       }
     } catch (err) {
-      console.error("Authentication error:", err)
-      setError("Authentication failed")
-      return { success: false, error: "Authentication failed" }
+      console.error("Login error:", err);
+      setError(err.message || "Invalid email or PIN.");
+      return { success: false, error: err.message || "Invalid email or PIN." };
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const logout = () => {
-    setUser(null)
-    setError(null)
-  }
-
-  const clockIn = async () => {
-    if (!user) return { success: false, error: "No user logged in" }
-    
-    try {
-      const result = await employeeService.clockIn(user.id)
-      return result
-    } catch (err) {
-      console.error("Clock in error:", err)
-      return { success: false, error: "Clock in failed" }
-    }
-  }
-
-  const clockOut = async () => {
-    if (!user) return { success: false, error: "No user logged in" }
-    
-    try {
-      const result = await employeeService.clockOut(user.id)
-      return result
-    } catch (err) {
-      console.error("Clock out error:", err)
-      return { success: false, error: "Clock out failed" }
-    }
-  }
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem("token");
+  };
 
   const value = {
     user,
+    token,
     loading,
     error,
     login,
     logout,
-    clockIn,
-    clockOut,
-  }
+  };
 
   return (
     <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
-  )
-}
+  );
+};

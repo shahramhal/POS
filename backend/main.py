@@ -1,8 +1,22 @@
 from fastapi import FastAPI # Import FastAPI framework
 from database import database
+from fastapi.middleware.cors import CORSMiddleware
 from api.routers import menu, categories, orders, tables,users,payments, order_items, auth
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:5173",  # The address of your React frontend
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Allows specific origins to make requests
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allows all headers
+)
 
 @app.on_event("startup")
 async def startup():

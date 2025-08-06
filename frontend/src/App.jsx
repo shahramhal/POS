@@ -1,15 +1,26 @@
-import { useAuth } from './context/AuthContext.jsx';
-import EmployeeLogin from './components/EmployeeLogin.jsx';
-import Dashboard from './components/Dashboard.jsx';
+import React from 'react'; 
+import { AuthProvider } from './context/AuthContext';
+import { useAuth } from './hooks/useAuth';
+import EmployeeLogin from './components/EmployeeLogin';
+import Dashboard from './components/Dashboard';
+import LoadingSpinner from './components/LoadingSpinner'; // We'll convert this to Bootstrap next
 import './App.css';
 
-function App() {
-  const { user } = useAuth();
+const AppContent = () => {
+  const { user, loading } = useAuth();
 
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  return user ? <Dashboard /> : <EmployeeLogin />;
+};
+
+function App() {
   return (
-    <div className="App min-vh-100" data-bs-theme="dark">
-      {user ? <Dashboard /> : <EmployeeLogin />}
-    </div>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
