@@ -4,16 +4,18 @@ from database import database
 from models.models import users
 from schemas.schemas import UserIn, UserOut
 from sqlalchemy.exc import IntegrityError, DataError
+from utils.security import hash_password
 router = APIRouter()
 @router.post("/create", response_model=UserOut)
 async def create_user(user: UserIn):
-    query = users.insert().values(**user.dict())
+    hashed_password = hash_password(user.password_hash)
+    query = users.insert().values(**user.dict(exclude={"password_hash"}), password_hash=hashed_password)
     
-    try :
-        user_id= await database.execute(query)
-        return {**user.dict(), "id": user_id}
+    try:
+        user_id = await database.execute(query)
+        return {**user.dict(exclude={"password_hash"}), "id": user_id, "password_hash": None}
     except IntegrityError as e:
-         return JSONResponse(
+        return JSONResponse(
             status_code=400,
             content={"detail": "Integrity error: likely duplicate or invalid field", "error": str(e.orig)}
         )
@@ -22,13 +24,11 @@ async def create_user(user: UserIn):
             status_code=400,
             content={"detail": "Invalid data format or length", "error": str(e.orig)}
         )
-
-    
     except Exception as e:
         return JSONResponse(
             status_code=500,
             content={"detail": "Internal server error", "error": str(e)}
-            )
+        )
 
 @router.get("/", response_model=list[UserOut])
 async def get_all_users():
@@ -59,11 +59,14 @@ async def get_user_by_id(user_id: int):
         )
 @router.put("/{user_id}/update", response_model=UserOut)
 async def update_user(user_id: int, user: UserIn):
-    query = users.update().where(users.c.id == user_id).values(**user.dict())
+    update_data = user.dict(exclude_unset=True)
+    if "password_hash" in update_data:
+        update_data["password_hash"] = hash_password(update_data["password_hash"])
+    query = users.update().where(users.c.id == user_id).values(**update_data)
     try:
         result = await database.execute(query)
         if result:
-            return {**user.dict(), "id": user_id}
+            return {**update_data, "id": user_id}
         else:
             raise HTTPException(status_code=404, detail="User not found")
     except IntegrityError as e:

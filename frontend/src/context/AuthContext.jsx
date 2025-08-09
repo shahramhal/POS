@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 // frontend/src/context/AuthContext.jsx
 import React, { createContext, useState, useEffect } from "react";
-import { loginUserWithPin, getMe } from "../services/api";
+import { loginUserWithPin, getMe } from "../services/EmployeeLogin";
 
 export const AuthContext = createContext();
 

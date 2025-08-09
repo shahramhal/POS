@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import{useAuth} from '../hooks/useAuth';
-import { getAllUsers } from '../services/api';
+import { getAllUsers } from '../services/EmployeeLogin';
 import LoadingSpinner from './LoadingSpinner';
 
 const EmployeeLogin = () => {
